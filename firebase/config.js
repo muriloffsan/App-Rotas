@@ -1,5 +1,5 @@
 // firebase/config.js
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
 
@@ -13,9 +13,10 @@ const firebaseConfig = {
   measurementId: "G-BQ7SSBWC1F"
 };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+// ⚠️ Previne reinicializações no hot reload
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
+const auth = getAuth(app); // 🔥 CERTO!
+const db = getFirestore(app);
 
 export { auth, db };
