@@ -28,6 +28,10 @@ export default function HomeScreen({ navigation }) {
     navigation.navigate("Route", { origin: location, destination });
   };
 
+  const handleProfile = () => {
+    navigation.navigate("Profile");
+  };
+
   return (
     <View style={styles.container}>
       {location && (
@@ -43,13 +47,24 @@ export default function HomeScreen({ navigation }) {
           <Marker coordinate={location} title="Você está aqui" />
         </MapView>
       )}
-      <TextInput
-        style={styles.input}
-        placeholder="Digite o destino"
-        value={destination}
-        onChangeText={setDestination}
-      />
-      <Button title="Navegar" onPress={handleNavigate} />
+
+      <View style={styles.controls}>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite o destino"
+          value={destination}
+          onChangeText={setDestination}
+          placeholderTextColor="#999"
+        />
+        <View style={styles.buttonRow}>
+          <View style={styles.buttonWrapper}>
+            <Button title="Navegar" onPress={handleNavigate} />
+          </View>
+          <View style={styles.buttonWrapper}>
+            <Button title="Perfil" onPress={handleProfile} />
+          </View>
+        </View>
+      </View>
     </View>
   );
 }
@@ -57,13 +72,35 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
-  input: {
+  controls: {
     position: 'absolute',
-    bottom: 80,
+    top: 40,
     left: 20,
     right: 20,
-    backgroundColor: '#fff',
+    backgroundColor: '#ffffffee',
+    padding: 15,
+    borderRadius: 12,
+    elevation: 6,
+    shadowColor: '#000',
+    shadowOpacity: 0.15,
+    shadowOffset: { width: 0, height: 4 },
+    shadowRadius: 6,
+  },
+  input: {
+    backgroundColor: '#f7f7f7',
     padding: 12,
-    borderRadius: 8,
-  }
+    borderRadius: 10,
+    fontSize: 16,
+    marginBottom: 10,
+    borderColor: '#ddd',
+    borderWidth: 1,
+  },
+  buttonRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+  },
+  buttonWrapper: {
+    flex: 1,
+    marginHorizontal: 5,
+  },
 });

@@ -16,7 +16,11 @@ export default function RouteScreen({ route }) {
         params: {
           q: destination,
           format: 'json',
+          addressdetails: 1,
           limit: 1
+        },
+        headers: {
+          'User-Agent': 'MyApp/1.0 (teste@gmail.com)',
         }
       });
       if (res.data.length === 0) {
@@ -24,7 +28,11 @@ export default function RouteScreen({ route }) {
         return;
       }
       const { lat, lon } = res.data[0];
-      setDestCoords({ latitude: parseFloat(lat), longitude: parseFloat(lon) });
+      const coords = {
+        latitude: parseFloat(lat),
+        longitude: parseFloat(lon)
+      };
+      setDestCoords(coords);
     } catch (err) {
       Alert.alert("Erro ao buscar coordenadas");
     }
@@ -32,29 +40,27 @@ export default function RouteScreen({ route }) {
 
   const fetchRoute = async () => {
     try {
-      const res = await axios.post(
-        'https://api.openrouteservice.org/v2/directions/driving-car',
-        {
-          coordinates: [
-            [origin.longitude, origin.latitude],
-            [destCoords.longitude, destCoords.latitude]
-          ]
-        },
-        {
-          headers: {
-            Authorization: 'SUA_API_KEY_DO_OPENROUTESERVICE',
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const body = {
+        coordinates: [
+          [origin.longitude, origin.latitude],
+          [destCoords.longitude, destCoords.latitude]
+        ],
+        format: "json",
+      };
 
-      const decoded = polyline.decode(res.data.routes[0].geometry);
+      const headers = {
+        Authorization: '5b3ce3597851110001cf6248a124b866e67c428cbf813c541d84da35',
+        'Content-Type': 'application/json',
+      };
+
+      const response = await axios.post('https://api.openrouteservice.org/v2/directions/driving-car', body, { headers });
+
+      const decoded = polyline.decode(response.data.routes[0].geometry);
       const coords = decoded.map(([lat, lon]) => ({ latitude: lat, longitude: lon }));
-
       setRouteCoords(coords);
       setInfo({
-        distance: (res.data.routes[0].summary.distance / 1000).toFixed(2),
-        duration: Math.ceil(res.data.routes[0].summary.duration / 60)
+        distance: (response.data.routes[0].summary.distance / 1000).toFixed(2),
+        duration: Math.ceil(response.data.routes[0].summary.duration / 60)
       });
     } catch (err) {
       Alert.alert("Erro ao buscar rota");
@@ -80,19 +86,23 @@ export default function RouteScreen({ route }) {
 
   return (
     <View style={styles.container}>
-      <MapView style={styles.map} initialRegion={{
-        latitude: origin.latitude,
-        longitude: origin.longitude,
-        latitudeDelta: 0.05,
-        longitudeDelta: 0.05,
-      }}>
+      <MapView
+        style={styles.map}
+        initialRegion={{
+          latitude: origin.latitude,
+          longitude: origin.longitude,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+      >
         <Marker coordinate={origin} title="Origem" />
         <Marker coordinate={destCoords} title="Destino" />
         <Polyline coordinates={routeCoords} strokeColor="blue" strokeWidth={4} />
       </MapView>
+
       <View style={styles.infoBox}>
-        <Text>Distância: {info.distance} km</Text>
-        <Text>Tempo estimado: {info.duration} min</Text>
+        <Text style={styles.infoText}>📏 {info.distance} km</Text>
+        <Text style={styles.infoText}>🕒 {info.duration} min</Text>
       </View>
     </View>
   );
@@ -101,11 +111,30 @@ export default function RouteScreen({ route }) {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   map: { flex: 1 },
-  loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
   infoBox: {
-    padding: 12,
-    backgroundColor: '#fff',
-    borderTopWidth: 1,
-    borderColor: '#ccc'
+    position: 'absolute',
+    top: 40,
+    right: 20,
+    backgroundColor: '#ffffffdd',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 10,
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    alignItems: 'flex-start'
+  },
+  infoText: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '600',
+    marginBottom: 4
   }
 });

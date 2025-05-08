@@ -1,30 +1,30 @@
-// screens/LoginScreen.js
 import React, { useState } from 'react';
 import { View, TextInput, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { auth } from '../firebase/config';
 
-export default function LoginScreen({ navigation, onLogin }) {
+export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
+  const usuarios = [
+    { email: 'teste@exemplo.com', senha: '123456' },
+    { email: 'admin@exemplo.com', senha: 'admin123' }
+  ];
 
-  const handleLogin = async () => {
-    try {
-      const cred = await signInWithEmailAndPassword(auth, email, senha);
-      console.log("Usuário logado:", cred.user);
-      navigation.navigate("Home"); // redireciona para a tela principal
-    } catch (err) {
-      console.error("Erro no login:", err.message);
+  const handleLogin = () => {
+    const usuarioValido = usuarios.find(
+      user => user.email === email && user.senha === senha
+    );
+
+    if (usuarioValido) {
+      navigation.navigate("Home");
+    } else {
       setErro("Email ou senha inválidos");
     }
   };
 
-  
-
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Entrar</Text>
+      <Text style={styles.title}>Entrarei</Text>
       <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" />
       <TextInput placeholder="Senha" value={senha} onChangeText={setSenha} secureTextEntry style={styles.input} />
       {erro ? <Text style={styles.error}>{erro}</Text> : null}

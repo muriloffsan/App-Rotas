@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
 import { View, TextInput, Button, Text, StyleSheet, Alert } from 'react-native';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
-import { doc, setDoc } from 'firebase/firestore';
-import { auth, db } from '../firebase/config';
 import { useNavigation } from '@react-navigation/native';
 
 export default function RegisterScreen() {
@@ -12,29 +9,14 @@ export default function RegisterScreen() {
   const [erro, setErro] = useState('');
   const navigation = useNavigation();
 
-  const handleRegister = async () => {
+  const handleRegister = () => {
     if (!nome || !email || !senha) {
       setErro("Preencha todos os campos.");
       return;
     }
 
-    try {
-      const cred = await createUserWithEmailAndPassword(auth, email, senha);
-      console.log("Usuário autenticado:", cred.user.uid);
-
-      await setDoc(doc(db, 'usuarios', cred.user.uid), {
-        nome: nome,
-        email: email,
-        ultimosDestinos: [],
-        criadoEm: new Date()
-      });
-
-      Alert.alert("Cadastro feito com sucesso!");
-      navigation.navigate("Login");
-    } catch (err) {
-      console.error("Erro ao cadastrar:", err.message);
-      setErro("Erro ao cadastrar: " + err.message);
-    }
+    Alert.alert("Cadastro simulado com sucesso!");
+    navigation.navigate("Login");
   };
 
   return (
